@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head th:replace="baseJs::header"  ></head>
+<script th:src="@{/kindeditor/kindeditor-all.js}" ></script>
+<script th:src="@{/kindeditor/zh-CN.js}" ></script>
+
+<title>安全警示新增</title>
+<style>
+html{
+height:100%;//让html的高度等于屏幕
+}
+body{
+height:100%;
+margin:0;
+overflow-x:hidden;
+overflow-y:hidden;
+}
+</style>
+<body id="thisbody">
+<form id="addForm" class="layui-form layui-form-pane" th:object="${data}" style="margin-top: 5px">
+	<div class="layui-form-item layui-row">
+		<div class="layui-inline " style="width: 48.5%" >
+			<label class="layui-form-label required">发布单位</label>
+			<div class="layui-input-block">
+				<select id="cono" name="cono" lay-verify="required" lay-search=""  lay-filter="wxjbEvent"   >
+					<option th:each="item,itemStat : ${companyList}" th:value="${item.code}" th:text="${item.name}" th:selected="${item.code} eq *{cono}?'true':'false'"  ></option>
+				</select>
+			</div>
+		</div>
+		<div class="layui-inline" style="width: 48%">
+			<label class="layui-form-label required">警示标题</label>
+			<div class="layui-input-block">
+				<input type="text" id="wzbt" name="wzbt" th:value="*{wzbt}"  class="layui-input"  lay-verify="required" ></input>
+			</div>
+		</div>
+	</div>
+	<div class="layui-form-item layui-row">
+		<div class="layui-inline " style="width: 48.5%" >
+			<label class="layui-form-label required">发布时间</label>
+			<div class="layui-input-block">
+				<input type="text" id="fbrq" name="fbrq"   placeholder="yyyy-MM-dd hh24:mi:ss"  class="layui-input"  lay-verify="required"  ></input>
+			</div>
+		</div>
+		<div class="layui-inline " style="width: 48%" >
+			<label class="layui-form-label required">发布人</label>
+			<div class="layui-input-block">
+				<input type="text" id="czy" name="czy" th:value="*{czy}"  class="layui-input" lay-verify="required"  ></input>
+			</div>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<textarea id="nr" name="nr" style="width:770px;height:330px;" th:inline="text">
+			[[*{nr}]]
+		</textarea>
+	</div>
+	<input type="hidden" name="recordid" th:value="*{recordid}"  />
+</form>
+
+</body>
+<script th:inline="javascript">
+    var editor;
+    var data = [[${data}]];
+    KindEditor.ready(function(K) {
+        editor = K.create('#nr', {
+            resizeType: 0
+        });
+    });
+    function save() {
+        var flag;
+        var obj = $("#addForm").form2json();
+        editor.sync();
+        obj.nr =$('#nr').val();
+        obj.fbrq  = new Date(Date.parse(obj.fbrq.replace(/-/g,"/")));
+        $.ajax({
+            type: 'POST',
+            url: path + 'safeDriving/add',
+            data : obj,
+            async : false,
+            success: function(result) {
+                if(result==1){
+                    flag = true;
+                }else{
+                    flag = false;
+                }
+            }
+        });
+        return flag;
+    }
+    layui.use(['layer', 'table','form','laydate'], function(){
+        laydate = layui.laydate;
+        debugger;
+        laydate.render({
+            elem: '#fbrq',
+            type: 'datetime',
+			value: data.fbrq==null?new Date():new Date(data.fbrq)
+        });
+    });
+
+    function yz(){
+        if(!Verification($("#addForm")))
+            return false;
+        else
+            return true;
+    }
+</script>
+</html>

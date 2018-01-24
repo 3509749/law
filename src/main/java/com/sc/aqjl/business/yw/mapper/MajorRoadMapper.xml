@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sc.aqjl.business.yw.mapper.MajorRoadMapper">
+	<resultMap id="BaseResultMap" type="com.sc.aqjl.business.yw.model.DLZDJKZB" >
+	    <id column="jklch" property="jcdh" jdbcType="INTEGER" />
+		<result column="pcrq" property="pcrq" jdbcType="TIMESTAMP" />
+		<result column="yhlx" property="yhlx" jdbcType="VARCHAR" />
+		<result column="cono" property="cono" jdbcType="VARCHAR" />
+		<result column="coname" property="coname" jdbcType="VARCHAR" />
+		<result column="buscrewno" property="buscrewno" jdbcType="VARCHAR" />
+		<result column="buscrewname" property="buscrewname" jdbcType="VARCHAR" />
+		<result column="pcry" property="pcry" jdbcType="VARCHAR" />
+	    <result column="pcxl" property="pcxl" jdbcType="VARCHAR" />
+	    <result column="xgxl" property="xgxl" jdbcType="VARCHAR" />
+	    <result column="yhld" property="yhld" jdbcType="VARCHAR" />
+	    <result column="yhms" property="yhms" jdbcType="VARCHAR" />
+	    <result column="yffa" property="yffa" jdbcType="VARCHAR" />
+	    <result column="photo" property="photo" jdbcType="VARCHAR" />
+	    <result column="img" property="img" jdbcType="VARCHAR" />
+	    <result column="inputdate" property="inputdate" jdbcType="TIMESTAMP" />
+        <association property="list" column="jcdh" javaType="java.util.List" select="queryChild" />
+	</resultMap>
+
+    <resultMap id="BaseResultMap2" type="com.sc.aqjl.business.yw.model.DLZDJKMXB" >
+        <id column="jklch" property="jklch" jdbcType="INTEGER" />
+        <result column="pcqk" property="pcqk" jdbcType="VARCHAR" />
+        <result column="pcrq" property="pcrq" jdbcType="TIMESTAMP" />
+        <result column="pcry" property="qzwpcryztc" jdbcType="VARCHAR" />
+        <result column="czy" property="czy" jdbcType="VARCHAR" />
+        <result column="inputdate" property="inputdate" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+
+  	<select id="getMajorRoadList"  parameterType="com.sc.aqjl.business.yw.model.DLZDJKZB" resultMap="BaseResultMap" >
+		select * from AQ_DLZDJKZB t
+		  <where>
+		   1 = 1
+			  <if test=" jklch!=null and jklch !=0 ">
+				  and jklch = #{jklch}
+			  </if>
+		  </where>
+		order by pcrq DESC
+	</select>
+
+    <select id="queryChild" parameterType="java.lang.String" resultMap="BaseResultMap2">
+        select * from AQ_DLZDJKMXB t where t.jklch = #{jklch} order by inputdate DESC
+    </select>
+
+    <select id="getCount" parameterType="com.sc.aqjl.business.yw.model.DLZDJKZB" resultType="java.lang.Integer">
+        select count(1) from AQ_DLZDJKZB t
+        <where>
+            1 = 1
+            <if test=" jklch!=null and jklch !=0 ">
+                and jklch = #{jklch}
+            </if>
+        </where>
+    </select>
+</mapper>
+

@@ -1,0 +1,24 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="header">
+    <link  th:href="@{/layui/css/layui.css}"  rel="stylesheet" />
+    <link th:href="@{/layui/css/Site.css}"  rel="stylesheet" />
+    <link th:href="@{/css/tipso.css}"   rel="stylesheet" />
+    <link th:href="@{/jquery/css/jquery.treegrid.css}"   rel="stylesheet" />
+    <script th:src="@{/jquery/jquery-3.2.1.min.js}"  ></script>
+    <script th:src="@{/jquery/form.json.js}" ></script>
+    <script th:src="@{/jquery/jquery.form.js}" ></script>
+    <script th:src="@{/jquery/jquery.serializejson.js}" ></script>
+    <script th:src="@{/layui/layui.js}" ></script>
+    <script th:src="@{/layui/layui-Verification.js}" ></script>
+    <script th:src="@{/js/common.js}" ></script>
+    <script th:src="@{/js/tipso.js}" ></script>
+    <script th:src="@{/jquery/form.json.js}" ></script>
+    <script type="text/javascript" th:inline="javascript">
+        /*<![CDATA[*/
+        var path = /*[[@{/}]]*/ '';
+        /*]]>*/
+    </script>
+</head>
+
+</html>

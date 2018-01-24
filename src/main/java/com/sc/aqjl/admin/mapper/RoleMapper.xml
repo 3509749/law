@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sc.aqjl.admin.mapper.RoleMapper">
+	<resultMap id="BaseResultMap" type="com.sc.aqjl.admin.model.URole" >
+	    <id column="ID" property="id" jdbcType="VARCHAR" />
+	    <result column="NAME" property="name" jdbcType="VARCHAR" />
+	    <result column="NOTES" property="notes" jdbcType="VARCHAR" />
+	    <result column="STATUS" property="status" jdbcType="DECIMAL" />
+	</resultMap>
+	<resultMap id="UPermissionMAP" type="com.sc.aqjl.admin.model.UPermission" >
+		<id column="ID" property="id" jdbcType="VARCHAR" />
+	    <result column="NAME" property="name" jdbcType="VARCHAR" />
+	    <result column="TYPE" property="type" jdbcType="DECIMAL" />
+	    <result column="PARENT_ID" property="parentId" jdbcType="VARCHAR" />
+	    <result column="URL" property="url" jdbcType="VARCHAR" />
+	    <result column="NOTES" property="notes" jdbcType="VARCHAR" />
+	    <result column="ORDER_NUM" property="orderNum" />
+	    <association property="childs" column="ID" javaType="java.util.List" select="queryChild" />
+  	</resultMap>
+  	
+  	
+  	<resultMap id="BaseResultMap2" type="com.sc.aqjl.admin.model.RoleResource" >
+	    <result column="ROLE_ID" property="roleId" jdbcType="VARCHAR" />
+	    <result column="RESOURCE_ID" property="resourceId" jdbcType="VARCHAR" />
+	</resultMap>
+  	
+  	<select id="getRole"  parameterType="com.sc.aqjl.admin.model.URole" resultMap="BaseResultMap" >
+		  select * from PUB_ROLE t
+		  <where>
+		   1 = 1
+		  	<if test=" name!=null and name !=''">
+			   and t.name like '%'||#{name}||'%'
+			</if>
+			<if test=" id !=null and id !=''">
+			   and t.id = #{id}
+			</if>
+		  </where>
+	</select>
+	
+	
+	<insert id="insertRole" parameterType="com.sc.aqjl.admin.model.URole">
+		insert into PUB_ROLE
+		(ID, NAME, NOTES,STATUS)
+		values (seq_bx_role.nextval,
+		#{name,jdbcType=VARCHAR},
+		#{notes,jdbcType=VARCHAR},
+		#{status,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<update id="updateRole" parameterType="com.sc.aqjl.admin.model.URole">
+		update PUB_ROLE
+			set 
+				name = #{name,jdbcType=VARCHAR},
+				notes = #{notes,jdbcType=VARCHAR},
+				status = #{status,jdbcType=VARCHAR}
+				where id = #{id,jdbcType=VARCHAR}
+	</update>
+	
+	
+	
+	<delete id="deleteRoles">
+		delete PUB_ROLE  where ID in 
+		<foreach collection="array" item="id" index="index"  
+         open="(" close=")" separator=",">  
+        	#{id}  
+		</foreach>  
+	</delete>
+  	
+  	<select id="getRoleCount" parameterType="com.sc.aqjl.admin.model.URole" resultType="java.lang.Integer">
+		SELECT count(1) from PUB_ROLE t
+		<where>
+		  	<if test=" name!=null and name !=''">
+			   t.name like '%'||#{name}||'%'
+			</if>
+	    </where>
+	</select>
+	
+	
+	<select id="getAllResource"   resultMap="UPermissionMAP">
+		select * from PUB_RESOURCE 
+	</select>
+	
+	
+	<select id="getResource" parameterType="java.lang.String"  resultMap="UPermissionMAP">
+		select t1.* from PUB_RESOURCE t1 left join PUB_R_ROLE_RESOURCE t2 on t2.resource_id = t1.id where t2.role_id =  #{id}
+	</select>
+  	
+  	
+	<insert id="insertResourceRole" parameterType="com.sc.aqjl.admin.model.RoleResource">
+		insert into pub_r_role_resource
+		  (id, role_id, resource_id)
+		values
+		  (seq_role_resource.nextval, #{roleId}, #{resourceId})
+	</insert>
+	
+	<delete id="deleteResourceRole">
+		delete pub_r_role_resource  where  role_id in
+		 <foreach collection="array" item="id" index="index"  
+         open="(" close=")" separator=",">  
+        	#{id}  
+		</foreach> 
+	</delete>
+  	
+ 	<select id="getUserRole" resultMap="BaseResultMap" >
+		  select  b.* from pub_r_user_role a,pub_role b where  a.role_id=b.id and  a.user_id = #{userId} 
+	</select>
+	<select id="listByUserId" resultMap="UPermissionMAP">
+		select  distinct(TR.ID) as ID, 
+        TR.NAME, 
+        TR.TYPE, 
+        TR.PARENT_ID, 
+        TR.URL, 
+        TR.NOTES, 
+        TR.ORDER_NUM
+	    FROM  PUB_RESOURCE TR ,PUB_R_ROLE_RESOURCE RRU , PUB_ROLE ROLE
+	    WHERE TR.ID = RRU.RESOURCE_ID
+	      AND RRU.ROLE_ID IN(
+	          select ROLE_ID  from PUB_R_USER_ROLE t   where t.user_id=#{value}
+	      )
+	    AND RRU.ROLE_ID = ROLE.ID
+	    ORDER BY TR.ORDER_NUM ASC
+	</select>
+	
+	<select id="listParent" resultMap="UPermissionMAP">
+		select  distinct(TR.ID) as ID, 
+        TR.NAME, 
+        TR.TYPE, 
+        TR.PARENT_ID, 
+        TR.URL, 
+        TR.NOTES, 
+        TR.ORDER_NUM
+      FROM  PUB_RESOURCE TR  where TR.PARENT_ID is null
+      ORDER BY TR.ORDER_NUM ASC
+	</select>
+	<select id="listChild" resultMap="UPermissionMAP">
+		select  distinct(TR.ID) as ID, 
+        TR.NAME, 
+        TR.TYPE, 
+        TR.PARENT_ID, 
+        TR.URL, 
+        TR.NOTES, 
+        TR.ORDER_NUM
+      FROM  PUB_RESOURCE TR  where TR.PARENT_ID is not null
+      ORDER BY TR.ORDER_NUM ASC
+	</select>
+	<select id="queryChild" parameterType="java.lang.String" resultMap="UPermissionMAP">
+		select * from PUB_RESOURCE t where t.PARENT_ID = #{id} order by order_num
+	</select>
+</mapper>
+

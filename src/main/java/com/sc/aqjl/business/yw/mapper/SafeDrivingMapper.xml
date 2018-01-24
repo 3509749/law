@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sc.aqjl.business.yw.mapper.SafeDrivingMapper">
+	<resultMap id="BaseResultMap" type="com.sc.aqjl.business.yw.model.AQXCJS" >
+	    <id column="recordid" property="recordid" jdbcType="INTEGER" />
+	    <result column="wzbt" property="wzbt" jdbcType="VARCHAR" />
+		<result column="fbrq" property="fbrq" jdbcType="TIMESTAMP" />
+		<result column="coname" property="coname" jdbcType="VARCHAR" />
+		<result column="nr" property="nr" jdbcType="VARCHAR" />
+		<result column="sfyd" property="sfyd" jdbcType="VARCHAR" />
+		<result column="fknr" property="fknr" jdbcType="VARCHAR" />
+	    <result column="czy" property="czy" jdbcType="VARCHAR" />
+	    <result column="inputdate" property="inputdate" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+  	<select id="getSafeDrivingList"  parameterType="com.sc.aqjl.business.yw.model.AQXCJS" resultMap="BaseResultMap" >
+		select * from AQ_AQXCJS t
+		  <where>
+		   1 = 1
+			  <if test=" wzbt!=null and wzbt !='' ">
+				  and wzbt like '%'||#{wzbt}||'%'
+			  </if>
+			  <if test=" recordid!=null and recordid !=0 ">
+				  and recordid = #{recordid}
+			  </if>
+		  </where>
+	</select>
+
+
+	<select id="getCount" parameterType="com.sc.aqjl.business.yw.model.AQXCJS" resultType="java.lang.Integer">
+		select count(1) from AQ_AQXCJS t
+	</select>
+
+	<insert id="insert" parameterType="com.sc.aqjl.business.yw.model.AQXCJS">
+		insert into AQ_AQXCJS
+		(recordid, wzbt, fbrq, cono, coname, nr, sfyd, fknr, czy, inputdate)
+		values (seq_aq_aqxcjs.nextval,
+		#{wzbt},
+		#{fbrq},
+		#{cono},
+		#{coname},
+		#{nr},
+        #{sfyd},
+		#{fknr},
+		#{czy},
+		sysdate
+		)
+	</insert>
+
+	<update id="update" parameterType="com.sc.aqjl.business.yw.model.AQXCJS">
+		update AQ_AQXCJS
+		set
+		wzbt = #{wzbt},
+		fbrq = #{fbrq},
+		cono = #{cono},
+		coname = #{coname},
+		nr = #{nr},
+		sfyd = #{sfyd},
+		fknr = #{fknr},
+		czy = #{czy}
+		where recordid = #{recordid}
+	</update>
+
+
+    <delete id="delete">
+        delete AQ_AQXCJS  where recordid in
+        <foreach collection="array" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
+

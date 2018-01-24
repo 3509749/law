@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sc.aqjl.base.mapper.DictMapper">
+	<resultMap id="BaseResultMap" type="com.sc.aqjl.base.model.DictItem">
+		<result column="CODE" property="code" jdbcType="VARCHAR" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />
+		<result column="parentCode" property="parentCode" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="getOtherTable" parameterType="com.sc.aqjl.base.model.DictTable" resultMap="BaseResultMap">
+		select ${codeField} code,${nameField} name 
+		<if test="parentField != null  and parentField != ''  ">
+			      ,${parentField}  parentCode  
+		</if>		
+		 from ${tableName} t
+		<where>
+			<if test="whereCase != null  and whereCase != ''  ">
+			       ${whereCase}  
+			</if>
+		</where>
+		<if test="orderByField != null  and orderByField != ''  ">
+			       order by #{orderByField}
+		</if>
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	<select id="getOtherTableByField" parameterType="com.sc.aqjl.base.model.DictTable" resultType="java.lang.String">
+		select ${nameField} name from ${tableName} t
+		<where>
+			<if test="value != null and value!=''">
+				t.${codeField} = #{value}
+			</if>
+		</where>
+		<if test="orderByField != null  and orderByField != ''  ">
+			      order by #{orderByField}
+		</if>
+	</select>
+	
+	<select id="getDict" parameterType="com.sc.aqjl.base.model.DictTable" resultMap="BaseResultMap">
+		select ${codeField} code,${nameField} name from gjerp.v_basic_data t  where  t.${typeField} = ${valueField}
+	</select>
+</mapper>
+

@@ -1,0 +1,141 @@
+﻿@headerH:50px;
+@hrH:3px;
+@menuW:180px;
+@tbsH:30px;
+body{
+    font-size:13px;
+    padding:0;
+}
+ul,li{
+    margin:0;
+    padding:0;
+    list-style:none;
+}
+
+.lay-header{
+    height:@headerH;
+}
+.lay-hr{
+    height:@hrH;
+    background-color:#0094ff;
+}
+.lay-left{
+    position:absolute;
+    top:(@headerH + @hrH);
+    bottom:0;
+    left:0;
+    width:(@menuW + 2);
+    overflow:hidden;
+    background-color:#f2f2f2;
+    border-right:solid 1px #ccc;
+}
+.lay-menu{
+    width:(@menuW + 20);
+    height:100%;
+    overflow-y:auto;
+}
+.menu {
+    li {
+        &.active {
+            width: (@menuW + 2);
+            border-right: solid 2px #0094ff;
+
+            > a:after {
+                position: absolute;
+                right: 0;
+                top: 10px;
+                margin-right: -1px;
+                content: '';
+                display: inline-block;
+                width: 0;
+                height: 0;
+                vertical-align: middle;
+                border-top: 10px solid transparent;
+                border-bottom: 10px solid transparent;
+                border-right: 6px solid #0094ff;
+            }
+
+            &.open > a:after {
+                border: none;
+            }
+        }
+
+        img {
+            width: 16px;
+            height: 16px;
+            vertical-align: top;
+            margin: 3px 10px 0;
+        }
+    }
+
+    a {
+        position: relative;
+        display: block;
+        height: 39px;
+        width: @menuW;
+        line-height: 39px;
+        color: #222;
+        border-bottom: solid 1px #ccc;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    > li {
+        width: @menuW;
+
+        &.open {
+            background-color: #fff;
+
+            i:before {
+                content: "\e259";
+            }
+
+            ul {
+                display: block;
+            }
+        }
+
+        i {
+            float: right;
+            margin-right: 10px;
+            margin-top: 12px;
+
+            &:before {
+                content: "\e257";
+            }
+        }
+
+        ul {
+            display: none;
+
+            li {
+                a {
+                    padding-left: 36px;
+
+                    &:hover {
+                        background-color: #eff6f9;
+                    }
+                }
+
+                li.active {
+                    background-color: #e7f1f9;
+                }
+            }
+        }
+    }
+}
+
+.lay-tbs{
+   height:@tbsH;
+   margin-left:(@menuW + 7);
+   background-color:#f2f2f2;
+}
+
+.lay-content{
+    background-color:#ccc;
+    position:absolute;
+    top:(@headerH + @hrH + @tbsH);
+    bottom:0;
+    right:0;
+    left:(@menuW + 7);
+}

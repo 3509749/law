@@ -1,0 +1,39 @@
+ table tr.noborder  td,table tr.noborder  th{
+     border:none;
+ }
+ table.layui-table td.title,table.layui-table th.title {
+    text-align:center;
+    font-size:20px;
+    line-height:50px;
+}
+.left {
+    float:left;
+}
+.right {
+    float:right;
+}
+.center {
+    margin:0 33%;
+    text-align:center;
+}
+tr.text-center td {
+    text-align:center;
+}
+tfoot td{text-align:left;}
+tfoot table {
+    width:100%;
+}
+tfoot td {
+    vertical-align:top;
+    padding:0 !important;
+}
+ @media print {
+     table.print{
+         display:table;
+         page-break-after:always;
+     }
+     #content {
+         display:none;
+     }
+     
+ }

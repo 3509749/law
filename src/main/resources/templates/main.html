@@ -1,0 +1,256 @@
+﻿<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head th:replace="baseJs::header"  ></head>
+<style>
+	img{
+		height: 80px;
+	}
+	img:last-child {
+		position: absolute;
+		top: 0;
+		left: 0;
+		opacity: 0;
+		z-index: 1;
+		transition: all 0.5s ease-in;
+	}
+	li:hover img:last-child {
+		opacity: 1;
+	}
+	.sidebar{
+		position:relative;
+		float:left;
+		background-color:#e8e8e8;
+		min-height:100%;
+		border-right:1px solid #1f93d0;
+		width:200px;}
+	a.shrinkico{
+		position:absolute;
+		/*right:-14px;*/
+		top:50%;
+		display:block;
+		width:13px;
+		height:55px;
+		background:url(img/shrink-n.png) center left;}
+</style>
+<body>
+
+<div class="layui-layout layui-layout-admin">
+	<div class="layui-header" style="background: url(img/main_bg.jpg)" >
+		<div class="layui-logo " style="width: 60%;text-align: left;font-size: 30px;"><div style="background: url(img/logofont.png);width: 400px;height: 80px;" ></div></div>
+		<!-- 头部区域（可配合layui已有的水平导航） -->
+		<div   style="float: right;width: 40%"  >
+			<div class="layui-layout-right " >
+				<ul  id="menu"  class="layui-nav" style="padding-right: 200px" >
+						<li th:class="${itemStat.first}?'layui-nav-item layui-this':'layui-nav-item'" th:attr="data-menu-index=${item.id}"   th:each="item,itemStat : ${listParent}" >
+							<img class="aa"  th:attr="data-tipso=${item.notes}" th:onclick="'javascript:leftTree(\''+${item.id}+'\')'"   src="img/1.png"    style="cursor: pointer;"></img>
+							<img class="aa"   th:attr="data-tipso=${item.notes}"   th:onclick="'javascript:leftTree(\''+${item.id}+'\')'"   data-tip="ToolTip" src="img/1_2.png"   style="cursor: pointer;"></img>
+						</li>
+				</ul>
+			</div>
+			<div  style="float: right;" >
+				<ul class="layui-nav " style="margin-top: 20px">
+					<li class="layui-nav-item"><a href="javascript:;"><shiro:principal property="name"/></a>
+						<dl class="layui-nav-child">
+							<dd>
+								<a href="#" onclick="detail('');">基本资料</a>
+							</dd>
+							<dd>
+								<a href="#" onclick="changePassWord('');">修改密码</a>
+							</dd>
+						</dl></li>
+					<li class="layui-nav-item"><a href="logout">退出</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="layui-side layui-bg-black"  style="background: url(img/main_bg2.jpg)" >
+		<div class="layui-side-scroll"  lay-allowclose="true">
+			<ul class="layui-nav layui-nav-tree" lay-filter="subMenu" id="subMenu">
+				<li class="layui-nav-item "  th:each="item,itemStat : ${listChild}" th:if="${item.parentId eq '10000000000000000100'}"  >
+					<a th:text="${item.name}"></a>
+					<dl class="layui-nav-child"  th:if="${itemStat.size > 0}">
+						<dd class="lay-nav-active" th:attr="data-tab-index=${item2.id},data-tab-url=${item2.url}"  th:each="item2 : ${item.childs}" >
+							<a th:text="${item2.name}" ></a>
+						</dd>
+					</dl>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="layui-body">
+		<div class="layui-tab layui-tab-card" lay-filter="tab" lay-allowclose="true" style="padding: 0;margin: 0;height: 99%">
+			<ul class="layui-tab-title" id="tab">
+			</ul>
+			<div class="layui-tab-content" style="height: 92%;">
+			</div>
+		</div>
+		<a href="javascript:void(0)" onclick="sizewh()" id="men" class="shrinkico"></a>
+	</div>
+
+	<div class="layui-footer">
+		<div style="float: left; padding-left: 18px;" onclick="aa()">欢迎您：<shiro:principal property="loginName"/></div>
+		<div class="jtfooter" style="text-align:center;padding-top: 2px;">
+		</div>
+	</div>
+</div>
+</body>
+<script  th:inline="javascript" >
+    var layer;
+    var element;
+    function sizewh(){
+        if($(".layui-side").css("width") == "0px"){
+            $(".layui-side").animate({width:"200px"});
+            $(".layui-body").animate({left:200});
+            $(".layui-footer").animate({left:200});
+
+            $(".shrinkico").css("background","url(/bx/img/shrink-n.png) center left");
+        }else{
+            $(".layui-side").animate({width:"0px"});
+            $(".layui-body").animate({left:0});
+            $(".layui-footer").animate({left:0});
+            $(".shrinkico").css("background","url(/bx/img/shrink-c.png) center left");
+        }
+    }
+    layui.use(['layer', 'element'], function() {
+        $("img[class='aa']").tipso({
+            useTitle: false
+        });
+        $('.lay-nav-active').bind('click', function() {
+            if(!judgeTabExist($(this).data("tabIndex"))){
+                layui.element.tabChange('tab', $(this).data("tabIndex"));
+                return;
+            }
+            if($(this).data("tabUrl") == "") return;
+            addTab(this);
+        });
+        layer = layui.layer;
+        element = layui.element;
+        layui.element.tabAdd('tab', {
+            title : '首页',
+            content : createFrame('business/welcome'),
+            id : "101"
+        })
+        layui.element.tabChange('tab',"101");
+        layui.element.on('tabDelete(tab)', function(data){
+
+            setTimeout(function () {
+                $('li[lay-id="101"]').html("首页");
+            }, 500);
+
+        });
+        $('li[lay-id="101"]').html("首页");
+    });
+    function detail(id){
+        layer.open({
+            type: 2, //此处以iframe举例
+            title: '基本资料',
+            area: ['800px', '550px'],
+            content: ['user/detail?id='+id , 'no'],
+            btn: ['关闭'],
+            yes: function(index){
+                layer.close(index);
+            },
+            zIndex: layer.zIndex,
+            success: function(layero){
+                layer.setTop(layero);
+            }
+        });
+    }
+    function changePassWord(id){
+        layer.open({
+            type: 2, //此处以iframe举例
+            title: '密码修改',
+            area: ['800px', '400px'],
+            content: ['user/changePassWord?id='+id , 'no'],
+            btn: ['保存', '关闭'],
+            yes: function(index, layero){
+                var iframe = $($(layero).find("iframe").contents()[0]);
+                var flag = Verification(iframe.find("#addForm"));
+                if(flag!=false){
+                    var form=iframe.find("#addForm");
+                    $.post('user/editPass',form.serialize(),function(result){
+                        if(result==1){
+                            layer.closeAll();
+                        }else{
+                            failTip('修改失败');
+                        }
+                    });
+                }
+            },
+            btn2: function(index){
+                layer.close(index);
+            }
+        });
+    }
+    function addTab(e) {
+        var subMenu = $("#subMenu>li[class='layui-nav-item lay-nav-active layui-this']")[0];
+        $(subMenu).removeClass("layui-this");
+        layui.element.tabAdd('tab', {
+            title : $(e).find("a").text(),
+            content : createFrame($(e).data("tabUrl")),
+            id : $(e).data("tabIndex")
+        });
+        layui.element.tabChange('tab', $(e).data("tabIndex"));
+        $(e).addClass("layui-this");
+        $('li[lay-id="101"]').html("首页");
+    }
+    function createFrame(url) {
+        var height = $(".layui-tab-content").height() + "px";
+        return '<iframe id="tab_iframe" name="tab_iframe" scrolling="no" frameborder="0"  src="'
+            + url
+            + '" style="width:100%;height:'
+            + height
+            + ';"></iframe>';
+    }
+    var message = [[${listChild}]];
+    function leftTree(id){
+        debugger;
+        var clickMenu = $("#menu>li[class='layui-nav-item layui-this']")[0];
+        if($(clickMenu).data("menuIndex") == (id + ""))return;
+        $("#subMenu").empty();
+
+        for(var i in message){
+            if(message[i].parentId  ==   (id + "")){
+                if(message[i].url == null)message[i].url = "";
+                var li = $('<li class="layui-nav-item lay-nav-active" data-tab-index="'+message[i].id+'"  data-tab-url="'+message[i].url+'" ></li>');
+                $("#subMenu").append(li);
+                li.append($('<a></a>').html(message[i].name));
+                if(message[i].childs  !=  null   /*<![CDATA[*/ && /*]]>*/  message[i].childs.length /*<![CDATA[*/ > /*]]>*/  0 ){
+                    var dl = $("<dl></dl>").addClass("layui-nav-child");
+                    li.append(dl);
+                    for(var j in message[i].childs){
+                        var dd = $("<dd ></dd>").addClass("lay-nav-active").data("tabIndex",message[i].childs[j].id).data("tabIndex",message[i].childs[j].url);
+                        var a = $('<a></a>').html(message[i].childs[j].name);
+                        dd.append(a);
+                        dl.append(dd);
+                    }
+                }
+            }
+        }
+        $('.lay-nav-active').bind('click', function() {
+            if(!judgeTabExist($(this).data("tabIndex"))){
+                layui.element.tabChange('tab', $(this).data("tabIndex"));
+                return;
+            }
+            if($(this).data("tabUrl") == "") return;
+            addTab(this);
+        });
+        element.init('nav');
+    }
+    function judgeTabExist(id){
+        var flag = true;
+        $("#tab").find("li").each(function(i,e){
+            if($($(e)[0]).attr("lay-id") == id){
+                flag = false;
+            }
+        })
+        return flag;
+    }
+    window.setInterval(function showalert()
+    {
+        $('li[lay-id="101"]').html("首页");
+    } , 100);
+
+</script>
+</html>

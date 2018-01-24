@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head th:replace="baseJs::header"  ></head>
+<style>
+html {
+	height: 100%;
+	//
+	让html的高度等于屏幕
+}
+
+body {
+	height: 100%;
+	margin: 0;
+}
+</style>
+<body id="thisbody">
+	<div class="content-header" id="header">
+		<div class="layui-btn-group">
+			<a class="layui-btn" id="add" onclick="addPage()"><i class="layui-icon">&#xe608;</i> 添加</a> 
+			<a class="layui-btn" id="del" onclick="del()" ><i class="layui-icon">&#xe640;</i> 删除</a>
+		</div>
+		<div class="layui-inline" style="padding-top:5px;float:right;padding-right:4px;">
+			<div class="layui-inline">
+				<input type="text" id="searchValue" class="layui-input layui-input-search" placeholder="警示标题"></input>
+			</div>
+			<div class="layui-inline">
+				<a class="layui-btn" onclick="reload()"><i class="layui-icon">&#xe615;</i> 查询</a>
+			</div>
+
+		</div>
+	</div>
+	<hr />
+	<div id="table"  ></div>
+	<script type="text/html" id="barDemo">
+		<a class="layui-btn layui-btn-mini" onclick="editPage('{{ d.recordid }}')">编辑</a>
+	</script>
+</body>
+<script>
+var h=$("#thisbody").height()-$("#header").height()-25;
+var w=($("#table").width()-160)/4;
+
+var panelOption = {
+	      type: 2 ,
+	      area: ['800px', '530px'],
+	      shade: 0.3,
+	      scrollbar: false,
+	      maxmin: true,
+	      offset: '100px'
+}
+
+var table;
+layui.use(['layer', 'table'], function(){
+	table= layui.table;
+	layui.table.render({
+			id : 'safeDrivingTable',
+	    	elem: '#table',
+	        url: path + '/safeDriving/getSafeDrivingData',
+	        width: '100%',
+	        height: h,
+	        cols: [[ //标题栏
+	          {checkbox: true, LAY_CHECKED: false,width: 50,align:'center'},
+	          	{field: 'fbrq', title: '发布时间', width: w,align:'center',templet: function(d){
+                      return new Date(d.fbrq).toLocaleString();
+                  }},
+	          	{field: 'wzbt', title: '警示标题',  width: w,align:'center'},
+			  	{field: 'coname', title: '发布单位', width: w,align:'center'},
+	          	{field: 'sfyd', title: '阅读状态', width: w,templet: '#statusTpl',align:'center'},
+				{fixed: 'right', title: '操作', width: 100,toolbar: '#barDemo',align:'center'}
+	        ]],
+	        skin: 'row', //表格风格
+	        even: true,
+	        page: true, //是否显示分页
+	        limits: [15,20,50],
+	        limit: 15, //每页默认显示的数量
+	        loading: true, //请求数据时，是否显示loading
+	        done: function(res, curr, count){
+	    	  }
+	      });
+	      
+	   	$("#searchValue").keydown(function(e){
+	    var keyCode =window.event? e.keyCode:e.which;
+	    if(keyCode== 13){
+	    reload();
+	    }
+		})
+});
+
+function reload(){
+    table.reload("safeDrivingTable", {
+        where: {
+            wzbt: $("#searchValue").val()
+        }
+    });
+} ;
+
+function addPage(){
+    layer.open(extend({
+        id :"addPage",
+        title: '警示信息新增',
+        content: path + 'safeDriving/safeDrivingAddPage',
+        btn: ['保存', '关闭'],
+        yes: function(index, layero){
+            var iframe = $(layero).find("iframe")[0].contentWindow;
+            if(!iframe.yz())return;
+            if(iframe.save()){
+                layer.close(index);
+                sucessTip("新增成功");
+                reload();
+            }else
+                failTip("新增失败");
+        }
+    },panelOption));
+};
+
+function editPage(id){
+    layer.open(extend({
+        id :"editPage",
+        title: '警示信息编辑',
+        content: path + 'safeDriving/safeDrivingAddPage?id='+id,
+        btn: ['保存', '关闭'],
+        yes: function(index, layero){
+            var iframe = $(layero).find("iframe")[0].contentWindow;
+            if(!iframe.yz())return;
+            if(iframe.save()){
+                layer.close(index);
+                sucessTip("编辑成功");
+                reload();
+            }else
+                failTip("编辑失败");
+        }
+    },panelOption));
+};
+
+function del() {
+    var checkStatus = table.checkStatus('safeDrivingTable'),data = checkStatus.data,ids="";
+    for(var i in data){
+        var temp = data[i];
+        ids +=  temp.recordid + ",";
+        layer.confirm('确认删除?', { icon: 3, title: '提示' }, function (index) {
+            layer.close(index);
+            $.post(path+'safeDriving/del',{ids:ids},function(results){
+                sucessTip('删除'+results+'个警示信息');
+                reload();
+            });
+        });
+    }
+}
+</script>
+<script type="text/html" id="statusTpl">
+  {{#  if(d.sfyd == '1'){ }}
+    <span style="color: #9ACD32;">已读</span>
+  {{#  } else { }}
+    <span style="color: #FF784E;">未读</span>
+  {{#  } }}
+</script>
+</html>

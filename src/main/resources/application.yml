@@ -1,0 +1,24 @@
+server:
+  port: 8082
+  context-path: /aqjl
+spring:
+  datasource:
+    name: test
+    url: jdbc:oracle:thin:@192.168.0.205:1521:center
+    username: gjerp_web
+    password: 1
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: oracle.jdbc.OracleDriver
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML5
+    encoding: UTF-8
+    content-type: text/html
+ftp:
+  host: 192.168.0.206
+  port: 81
+  username: ftpService
+  password: Sc123456
+  nginx: http://192.168.0.206:9090

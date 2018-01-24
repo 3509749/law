@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head th:replace="baseJs::header"  ></head>
+
+<title>重点路段监控新增</title>
+<style>
+html{
+height:100%;//让html的高度等于屏幕
+}
+body{
+height:100%;
+margin:0;
+overflow-x:hidden;
+overflow-y:hidden;
+}
+</style>
+<body id="thisbody">
+<form id="addForm" class="layui-form layui-form-pane"  style="margin-top: 5px">
+	<div class="layui-form-item layui-row">
+		<div class="layui-inline " style="width: 32%" >
+			<label class="layui-form-label required">结束时间</label>
+			<div class="layui-input-block">
+				<input type="text" id="jsrq" name="jsrq"  class="layui-input"  lay-verify="required" ></input>
+			</div>
+		</div>
+		<div class="layui-inline " style="width: 32%" >
+			<label class="layui-form-label required">结束时间</label>
+			<div class="layui-input-block">
+				<input type="text"   class="layui-input"  lay-verify="required" ></input>
+			</div>
+		</div>
+		<div class="layui-inline " style="width: 32%" >
+			<label class="layui-form-label required">结束时间</label>
+			<div class="layui-input-block">
+				<input type="text"   class="layui-input"  lay-verify="required" ></input>
+			</div>
+		</div>
+		<div class="layui-inline " style="width: 32%" >
+			<label class="layui-form-label required">结束时间</label>
+			<div class="layui-input-block">
+				<input type="text"   class="layui-input"  lay-verify="required" ></input>
+			</div>
+		</div>
+		<div class="layui-upload">
+			<button type="button" class="layui-btn" id="test1">上传图片</button>
+			<div class="layui-upload-list">
+				<img class="layui-upload-img" id="demo1" />
+				<p id="demoText"></p>
+			</div>
+		</div>
+	</div>
+</form>
+<div id="table" ></div>
+</body>
+<script th:inline="javascript">
+    layui.use('upload', function() {
+        var $ = layui.jquery
+            , upload = layui.upload;
+        var uploadInst = upload.render({
+            elem: '#test1'
+            ,url: path + '/common/upload/IMG'
+            ,before: function(obj){
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                    $('#demo1').attr('src', result); //图片链接（base64）
+                });
+            }
+            ,done: function(res){
+                //如果上传失败
+                if(res.code > 0){
+                    return layer.msg('上传失败');
+                }
+                //上传成功
+            }
+            ,error: function(){
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-mini demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function(){
+                    uploadInst.upload();
+                });
+            }
+        });
+    });
+</script>
+</html>

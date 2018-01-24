@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sc.aqjl.admin.mapper.UserMapper">
+	<resultMap id="BaseResultMap" type="com.sc.aqjl.admin.model.UUser">
+		<id column="ID" property="id" jdbcType="VARCHAR" />
+		<result column="LOGIN_NAME" property="loginName" jdbcType="VARCHAR" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />
+		<result column="PASSWORD" property="password" jdbcType="VARCHAR" />   
+		<result column="CNNO" property="coNo" jdbcType="VARCHAR" />
+		<result column="DWNO" property="dwNo" jdbcType="VARCHAR" />
+		<result column="ADDRESSNO" property="addressNo" jdbcType="VARCHAR" />   
+	 	<result column="ROLE" property="role" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap id="UserResultMap" type="com.sc.aqjl.admin.model.User">
+		<id column="ID" property="id" jdbcType="VARCHAR" />
+		<result column="LOGIN_NAME" property="loginName" jdbcType="VARCHAR" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />
+		<result column="PASSWORD" property="password" jdbcType="VARCHAR" />   
+		<result column="CNNO" property="coNo" jdbcType="VARCHAR" />
+		<result column="DWNO" property="dwNo" jdbcType="VARCHAR" />
+		<result column="ADDRESSNO" property="addressNo" jdbcType="VARCHAR" />   
+	 	<result column="ROLE" property="role" jdbcType="VARCHAR" />   
+	</resultMap>
+	<select id="getUserByLoninName" resultMap="BaseResultMap">
+		SELECT * from PUB_USER
+		where LOGIN_NAME = #{loginName}
+	</select>
+	<select id="getUserByPage" parameterType="com.sc.aqjl.admin.model.User" resultMap="UserResultMap">
+		SELECT a.*,b.role_id role from PUB_USER  a left join pub_r_user_role b on a.id=b.user_id
+		where 1=1
+		<if test=" name!=null and name !=''">
+			   and (a.name like '%'||#{name}||'%' or a.LOGIN_NAME like '%'||#{name}||'%')
+		</if>
+	</select> 
+	<select id="getUserById" parameterType="java.lang.String" resultMap="UserResultMap">
+	
+		SELECT a.*,b.role_id role from PUB_USER  a left join pub_r_user_role b on a.id=b.user_id where a.id=#{id}
+	</select> 
+	<select id="getUserCount" parameterType="com.sc.aqjl.admin.model.User" resultType="java.lang.Integer">
+		SELECT count(1) from PUB_USER
+	</select>
+	<insert id="insertUser" parameterType="com.sc.aqjl.admin.model.User">
+		insert into PUB_USER
+		(ID, LOGIN_NAME, name,password, coNo,dwNo,addressNo)
+		values (#{id,jdbcType=VARCHAR},
+		#{loginName,jdbcType=VARCHAR},
+		#{name,jdbcType=VARCHAR},
+		#{password,jdbcType=VARCHAR},
+		#{coNo,jdbcType=VARCHAR},
+		#{dwNo,jdbcType=VARCHAR},
+		#{addressNo,jdbcType=VARCHAR}
+		)
+	</insert>
+	<insert id="insertRole" parameterType="com.sc.aqjl.admin.model.User">
+		insert into PUB_R_USER_ROLE
+		(ID,USER_ID,ROLE_ID)
+		values (PUB_R_USER_ROLE_SEQ.NEXTVAL,
+		#{id,jdbcType=VARCHAR},
+		#{role,jdbcType=VARCHAR} 
+		)
+	</insert>
+	<delete id="deleteUsers">
+		delete PUB_USER  where ID in 
+		<foreach collection="array" item="id" index="index"  
+         open="(" close=")" separator=",">  
+        	#{id}  
+		</foreach>  
+	</delete>
+	<delete id="deleteRole" parameterType="com.sc.aqjl.admin.model.User">
+		delete PUB_R_USER_ROLE  where USER_ID = #{id} 
+	</delete>
+	<delete id="deleteRoles" parameterType="com.sc.aqjl.admin.model.User">
+		delete PUB_R_USER_ROLE  where USER_ID in
+		<foreach collection="array" item="id" index="index"  
+         open="(" close=")" separator=",">  
+        	#{id}  
+		</foreach>
+	</delete>
+	
+	<update id="updateUser" parameterType="com.sc.aqjl.admin.model.User">
+		update pub_user
+			set 
+				login_name = #{loginName,jdbcType=VARCHAR},
+				name = #{name,jdbcType=VARCHAR},
+				password = #{password,jdbcType=VARCHAR},
+				coNo = #{coNo,jdbcType=VARCHAR},
+				dwNo = #{dwNo,jdbcType=VARCHAR},
+				addressNo = #{addressNo,jdbcType=VARCHAR}	 
+				where id = #{id,jdbcType=VARCHAR}
+	</update>
+	<update id="updatePass" parameterType="com.sc.aqjl.admin.model.User">
+		update pub_user
+			set 
+				password = #{password,jdbcType=VARCHAR}
+				where id = #{id,jdbcType=VARCHAR}
+	</update>
+</mapper>
+

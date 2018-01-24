@@ -1,0 +1,230 @@
+﻿<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head th:replace="baseJs::header"  ></head>
+
+<title>安全检查新增</title>
+<style>
+html{
+height:100%;//让html的高度等于屏幕
+}
+body{
+height:100%;
+margin:0;
+overflow-x:hidden;
+overflow-y:hidden;
+}
+</style>
+<body id="thisbody">
+<form id="addForm" class="layui-form layui-form-pane" th:object="${data}" style="margin-top: 5px">
+	<div class="layui-form-item layui-row">
+		<div class="layui-inline " style="width: 32%" >
+			<label class="layui-form-label required">结束时间</label>
+			<div class="layui-input-block">
+				<input type="text" id="jsrq" name="jsrq"  class="layui-input"  lay-verify="required" ></input>
+			</div>
+		</div>
+		<div class="layui-inline " style="width: 32%" >
+			<label class="layui-form-label required">组办公司</label>
+			<div class="layui-input-block">
+				<select id="zbgs" name="zbgs" lay-verify="required" lay-search=""  lay-filter="zbgsEvent"   >
+					<option></option>
+					<option th:each="item,itemStat : ${companyList}" th:value="${item.code}" th:text="${item.name}"  th:selected="${item.code} eq *{zbgs}?'true':'false'"    ></option>
+				</select>
+			</div>
+		</div>
+		<div class="layui-inline " style="width: 32%" >
+			<label class="layui-form-label required">组办车队</label>
+			<div class="layui-input-block">
+				<select id="zbzd" name="zbzd" lay-verify="required" lay-search=""  lay-filter="wxjbEvent"    >
+					<option></option>
+					<option th:each="item,itemStat : ${buscrew}" th:value="${item.code}" th:text="${item.name}"  th:selected="${item.code} eq *{zbzd}?'true':'false'"    ></option>
+				</select>
+			</div>
+		</div>
+	</div>
+	<div class="layui-form-item layui-row">
+		<div class="layui-inline" style="width: 32%">
+			<label class="layui-form-label required">检查类型</label>
+			<div class="layui-input-block">
+				<select id="jclx" name="jclx" lay-verify="required" lay-search=""  lay-filter="wxjbEvent"    >
+					<option></option>
+					<option th:each="item,itemStat : ${jclx}" th:value="${item.code}" th:text="${item.name}" th:selected="${item.code} eq *{jclx}?'true':'false'"  ></option>
+				</select>
+			</div>
+		</div>
+		<div class="layui-inline " style="width: 32%" >
+			<label class="layui-form-label required">检查人员</label>
+			<div class="layui-input-block">
+				<input type="text" id="jcrys" name="jcrys" th:value="*{jcrys}" class="layui-input " placeholder="人员数量（人）"></input>
+			</div>
+		</div>
+	</div>
+	<input type="hidden" name="jcdh" th:value="*{jcdh}" />
+</form>
+<div id="table" ></div>
+</body>
+<script th:inline="javascript">
+	var table;
+    var data = [[${data}]];
+    var subData =[];
+    var subDataType = ['跟车检查','定点检查','机动检查','其他'];
+    function save() {
+        var flag;
+        var obj = $("#addForm").form2json();
+        obj.jsrq  = new Date(Date.parse(obj.jsrq.replace(/-/g,"/")));
+        for(var i in table.cache.safeCheckSubTable){
+            delete table.cache.safeCheckSubTable[i].LAY_TABLE_INDEX;
+            if(table.cache.safeCheckSubTable[i].jcfs == '合计')
+                table.cache.safeCheckSubTable.splice(i,1);
+        }
+        $.ajax({
+            type: 'POST',
+            url: path + 'safeCheck/add',
+            data : {obj:JSON.stringify(obj),listStr:JSON.stringify(table.cache.safeCheckSubTable)},
+            async : false,
+            success: function(result) {
+                if(result==1){
+                    flag = true;
+                }else{
+                    flag = false;
+                }
+            }
+        });
+        return flag;
+    }
+    layui.use(['layer', 'table','form','laydate'], function(){
+        laydate = layui.laydate;
+        table= layui.table;
+        form = layui.form;
+        initSubData();
+        laydate.render({
+            elem: '#jsrq',
+            type: 'datetime',
+			value: data.jsrq==null?new Date():new Date(data.jsrq)
+        });
+        layui.table.render({
+            id : 'safeCheckSubTable',
+            elem: '#table',
+            data:subData,
+            width: '100%',
+            height: '300',
+            cols: [[ //标题栏
+                {field: 'jcfs', title: '检查方式', width: 150,align:'center', edit: 'text'},
+                {field: 'jctc', title: '检查台次（车辆）',  width: 160,align:'center', edit: 'text'},
+                {field: 'qzwztc', title: '违章台次（车辆）', width: 160,align:'center', edit: 'text'},
+                {field: 'jcsjrc', title: '检查司机人次', width: 160,align:'center', edit: 'text'},
+                {field: 'qzwzsjrc', title: '违章司机人次', width: 160,align:'center', edit: 'text'},
+                {field: 'remark', title: '备注', width: 188,align:'center', edit: 'text'},
+            ]],
+            skin: 'row', //表格风格
+            even: true,
+            page: false, //是否显示分页
+            limits: [15,20,50],
+            limit: 15, //每页默认显示的数量
+            loading: true, //请求数据时，是否显示loading
+            done: function(res, curr, count){
+                $("tr[data-index='4']").bind('DOMNodeInserted', function(e) {
+                    $(e.target).blur();
+                    return false;
+                });
+                $(".layui-table-cell").bind('DOMNodeInserted', function(e) {
+                    var num1=0,num2=0,num3=0,num4=0;
+                    if($(e.target).attr("class").indexOf("jctc") != -1)
+                    $(".laytable-cell-1-jctc").each(function(i,e){
+                        if(!isNaN($(e).html())  /*<![CDATA[*/ && /*]]>*/  i != 5)
+							num1 += $(e).html() - 0;
+                        if( i == 5 )
+                            $(e).html(num1);
+					});
+                    if($(e.target).attr("class").indexOf("qzwztc") != -1)
+                    $(".laytable-cell-1-qzwztc").each(function(i,e){
+                        if(!isNaN($(e).html())  /*<![CDATA[*/ && /*]]>*/  i != 5)
+                            num2 += $(e).html() - 0;
+                        if( i == 5 )
+                            $(e).html(num2);
+                    });
+                    if($(e.target).attr("class").indexOf("jcsjrc") != -1)
+                    $(".laytable-cell-1-jcsjrc").each(function(i,e){
+                        if(!isNaN($(e).html())  /*<![CDATA[*/ && /*]]>*/  i != 5)
+                            num3 += $(e).html() - 0;
+                        if( i == 5 )
+                            $(e).html(num3);
+                    });
+                    if($(e.target).attr("class").indexOf("qzwzsjrc") != -1)
+                    $(".laytable-cell-1-qzwzsjrc").each(function(i,e){
+                        if(!isNaN($(e).html())  /*<![CDATA[*/ && /*]]>*/  i != 5)
+                            num4 += $(e).html() - 0;
+                        if( i == 5 )
+                            $(e).html(num4);
+                    });
+                });
+            }
+        });
+
+        form.on('select(zbgsEvent)', function(data){
+            initZbzd(data.value);
+        });
+    });
+
+    function yz(){
+        if(!Verification($("#addForm")))
+            return false;
+        else
+            return true;
+    }
+
+    function initZbzd(code) {
+        $.ajax({
+            type: 'POST',
+            url: path+'common/getHtmlSelectOptionsByWhereCase',
+            data:{tableName:"TB_BUSCREW",codeField : "buscrewno",nameField :"buscrewname",whereCase:"CONO='"+code+"'"},
+            async : false,
+            success: function(result) {
+                $("#zbzd").html('<option value=""></option>'+result);
+                form.render("select");
+            }
+        });
+    }
+
+    function initSubData(){
+        var totaljctc = 0;
+        var totalqzwztc = 0;
+        var totaljcsjrc = 0;
+        var totalqzwzsjrc = 0;
+
+        for(var i in subDataType){
+            var flag = true;
+            for(var j in data.list){
+                if(data.list[j].jcfs == subDataType[i]){
+                    subData.push(data.list[j]);
+                    totaljctc += data.list[j].jctc;
+                    totalqzwztc += data.list[j].qzwztc;
+                    totaljcsjrc += data.list[j].jcsjrc;
+                    totalqzwzsjrc += data.list[j].qzwzsjrc;
+                    flag = false;
+                    break;
+                }else
+                    flag = true;
+            }
+            if(flag){
+                var obj = {};
+                obj.jcfs = subDataType[i];
+                obj.jctc = 0;
+                obj.qzwztc = 0;
+                obj.jcsjrc = 0;
+                obj.qzwzsjrc = 0;
+                obj.remark = "";
+                subData.push(obj);
+            }
+        }
+        var obj = {};
+        obj.jcfs = "合计";
+        obj.jctc = totaljctc;
+        obj.qzwztc = totalqzwztc;
+        obj.jcsjrc = totaljcsjrc;
+        obj.qzwzsjrc = totalqzwzsjrc;
+        obj.remark = "";
+        subData.push(obj);
+	}
+</script>
+</html>
